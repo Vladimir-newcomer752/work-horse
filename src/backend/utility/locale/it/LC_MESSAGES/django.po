@@ -1,0 +1,84 @@
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Django Work Hours\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-03-05 00:29+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language-Team: Italian\n"
+"Language: Italian\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: utility/admin.py:37
+msgctxt "User"
+msgid "Password"
+msgstr "Password"
+
+#: utility/admin.py:40
+msgctxt "User"
+msgid "Password confirmation"
+msgstr "Conferma della password"
+
+#: utility/models/configuration.py:33
+msgctxt "Configuration"
+msgid "Name"
+msgstr "Nome"
+
+#: utility/models/configuration.py:39
+msgctxt "Configuration"
+msgid "Group"
+msgstr "Gruppo"
+
+#: utility/models/configuration.py:43
+msgctxt "Configuration"
+msgid "Value"
+msgstr "Valore"
+
+#: utility/models/configuration.py:46
+msgctxt "Configuration"
+msgid "Description"
+msgstr "Descrizione"
+
+#: utility/models/configuration.py:51
+msgctxt "Configuration"
+msgid "Configuration"
+msgstr "Configurazione"
+
+#: utility/models/configuration.py:52
+msgctxt "Configuration"
+msgid "Configurations"
+msgstr "Configurazioni"
+
+#: utility/models/user.py:36
+msgctxt "User"
+msgid "E-mail"
+msgstr "E-mail"
+
+#: utility/models/user.py:41
+msgctxt "User"
+msgid "First name"
+msgstr "Nome"
+
+#: utility/models/user.py:46
+msgctxt "User"
+msgid "Last name"
+msgstr "Cognome"
+
+#: utility/models/user.py:51
+msgctxt "User"
+msgid "Redirect page after login"
+msgstr "Pagina di redirezione dopo l'accesso"
+
+#: utility/models/user.py:65
+msgctxt "User"
+msgid "User"
+msgstr "Utente"
+
+#: utility/models/user.py:66
+msgctxt "User"
+msgid "Users"
+msgstr "Utenti"

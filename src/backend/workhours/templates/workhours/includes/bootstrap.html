@@ -1,0 +1,8 @@
+{% load static %}
+    <!-- Bootstrap -->
+{% if type == 'css' %}
+    <link rel="stylesheet" href="{% static 'workhours/bootstrap-4.6.1/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'workhours/bootstrap-4.6.1/css/theme.min.css' %}">
+{% elif type == 'js' %}
+    <script src="{% static 'workhours/bootstrap-4.6.1/js/bootstrap.bundle.min.js' %}"></script>
+{% endif %}

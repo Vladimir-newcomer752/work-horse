@@ -1,0 +1,42 @@
+{% extends 'workhours/auth/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+    {{ block.super }}
+        <h1 class="display-4 text-center mb-3">{{ page_title_1 }}</h1>
+        <p class="text-muted text-center mb-5">{{ page_title_2 }}</p>
+        <form method="post" id="form-login" action="{% url 'workhours.auth.login' %}">
+          {% csrf_token %}
+          <div class="form-group">
+            {{ form.username.errors }}
+            {{ form.username.label_tag }}
+            {{ form.username }}
+          </div>
+          <div class="form-group">
+            <div class="row">
+              <div class="col">
+                {{ form.password.label_tag }}
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                {{ form.password }}
+              </div>
+            </div>
+          </div>
+          <input type="hidden" name="next" value="{{ next }}">
+          <button class="btn btn-lg btn-block btn-primary mb-3">{% translate 'Авторизоваться' context 'Auth' %}</button>
+        </form>
+        <script>
+          $(function() {
+            $("#form-login").validate();
+          });
+        </script>
+{% endblock %}
+
+{% if form.non_field_errors %}
+  {% block feedback %}
+        <div id="feedback-message">{{ form.non_field_errors }}</div>
+  {% endblock %}
+{% endif %}

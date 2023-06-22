@@ -1,0 +1,35 @@
+version: "3"
+services:
+  traefik:
+    image: traefik:latest
+    restart: unless-stopped
+    networks:
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.traefik.service=traefik"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+    command: --api.insecure=true --providers.docker
+  work-hours:
+      build:
+        dockerfile: src/backend/Dockerfile
+        context: .
+      command: >
+        sh -c "python manage.py migrate && gunicorn project.wsgi:application --bind 0.0.0.0:8776"
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=web"
+        - "traefik.http.routers.work-hours.rule=Host(`work-hours.localhost`)"
+        - "traefik.http.services.work-hours.loadbalancer.server.port=8776"
+      networks:
+        - web
+networks:
+  web:
+    external: true

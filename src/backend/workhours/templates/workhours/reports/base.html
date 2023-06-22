@@ -1,0 +1,49 @@
+{% extends 'workhours/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+      <div class="card">
+        <h2 class="card-header">
+          <span>
+            <a class="card-link" data-toggle="collapse" href="#collapse-options" aria-expanded="true">
+              {% translate 'Параметры отчета' context 'Reports' %}
+            </a>
+          </span>
+        </h2>
+        <div id="collapse-options" class="collapse show">
+          <div class="card-body">
+            <form method="post">
+              <div class="row card-row">
+                <div class="col-sm-1 col-form-label">{{ form.report_type.label_tag }}</div>
+                <div>{{ form.report_type }}</div>
+                <div>{{ form.report_type.errors }}</div>
+              </div>
+              <div class="row card-row">
+                <div class="col-sm-1 col-form-label">{{ form.starting_date.label_tag }}</div>
+                <div>{{ form.starting_date }}</div>
+                <div>{{ form.starting_date.errors }}</div>
+              </div>
+              <div class="row card-row">
+                <div class="col-sm-1 col-form-label">{{ form.ending_date.label_tag }}</div>
+                <div>{{ form.ending_date }}</div>
+                <div>{{ form.ending_date.errors }}</div>
+              </div>
+              <div class="row card-row">
+                <button class="offset-1 btn btn-lg btn-primary">{% translate 'Отчет о процессе' context 'Reports' %}</button>
+              </div>
+             {% csrf_token %}
+            </form>
+          </div>
+        </div>
+      </div>
+  {% if results %}
+    {% block results %}
+    {% endblock %}
+  {% endif %}
+{% endblock %}
+
+{% block footer_js %}
+  {{ block.super }}
+  {{ form.media }}
+{% endblock %}

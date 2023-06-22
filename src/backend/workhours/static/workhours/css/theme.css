@@ -1,0 +1,82 @@
+.login-background {
+    background-image: url(../img/auth-side-cover.jpg);
+}
+
+.form-control:disabled,
+.form-control[readonly]{
+  opacity: 0.9;
+}
+
+.container {
+  max-width: 90%;
+}
+
+.btn-link {
+    font-weight: bold;
+    color: black;
+}
+
+.modal-sm {
+    max-width: 400px;
+}
+
+.right {
+    text-align: right;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+input[type=checkbox].selection_mode {
+    -ms-transform: scale(1.3); /* IE */
+    -moz-transform: scale(1.3); /* FF */
+    -webkit-transform: scale(1.3); /* Safari and Chrome */
+    -o-transform: scale(1.3); /* Opera */
+    margin-right: 10px;
+}
+
+.header-tabs {
+    margin-bottom: 0;
+}
+
+.header-tabs .nav-link {
+    padding-bottom: 0.5rem;
+}
+
+.card-row {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.card-row-header {
+    background-color: #ececec;
+    font-weight: bold;
+    font-size: large;
+}
+
+.card-row-alternate {
+    background-color: #ececec;
+}
+
+.shift-employee-name {
+    font-size: large;
+}
+
+.zoom-x12 {
+    transform: scale(1.2);
+}
+
+.zoom-x15 {
+    transform: scale(1.5);
+}
+
+.card-link::before {
+    content: "\e92e";
+    font-family: 'Feather' !important;
+}
+
+.card-link[aria-expanded="true"]::before {
+    content: "\e931";
+    font-family: 'Feather' !important;
+}

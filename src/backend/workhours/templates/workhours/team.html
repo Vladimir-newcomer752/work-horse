@@ -1,0 +1,57 @@
+{% extends 'workhours/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+    {% for week in weeks %}
+        <div class="card">
+            <h2 class="card-header">
+          <span>
+            <a class="card-link" data-toggle="collapse" href="#collapse-{{ week.0 }}"
+               aria-expanded="{% if week.0 == 0 %}true{% else %}false{% endif %}">
+    {% if week.1.is_closed %}
+        <span class="fe fe-lock"></span>
+    {% else %}
+        <span class="fe fe-check-circle"></span>
+    {% endif %}
+                {{ week.2 }}
+            </a>
+          </span>
+                <span>
+            <a href="{% url 'workhours.week' pk=week.1.pk %}">
+              {% translate 'Показать подробности' context 'Team' %}
+              <span class="fe fe-grid"></span>
+            </a>
+          </span>
+            </h2>
+            <div id="collapse-{{ week.0 }}" class="collapse{% if week.0 == 0 %} show{% endif %}">
+                <div class="card-body">
+                    <div class="form-group row">
+                        <div class="col-sm-2">{% translate 'Дата начала' context 'Week' %}</div>
+                        <div class="col-sm-10">{{ week.1.starting_date | date:date_format_short }}</div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-2">{% translate 'Дата окончания' context 'Week' %}</div>
+                        <div class="col-sm-10">{{ week.1.ending_date | date:date_format_short }}</div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-2">{% translate 'Статус' context 'Week' %}</div>
+                        <div class="col-sm-10">
+                            {% if week.1.is_closed %}
+                                {% translate 'Закрытый' context 'Week' %} -
+                                {% translate 'Никакие изменения невозможны' context 'Week' %}
+                            {% else %}
+                                {% translate 'Open' context 'Week' %} -
+                                {% translate 'Вы можете изменить данные' context 'Week' %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-2">{% translate 'Записи' context 'Week' %}</div>
+                        <div class="col-sm-10">{{ week.1.notes | default:'-' }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

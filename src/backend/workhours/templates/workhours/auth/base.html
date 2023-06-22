@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+{% block header_begin %}
+    <!-- Header begin -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="product" content="{{ app_name }} {{ app_version }}">
+    {% include 'workhours/includes/favicons.html' %}
+{% endblock %}
+
+{% block header_title %}
+    <title>{{ page_title_1 }}</title>
+{% endblock %}
+
+{% block header_css %}
+    {% include 'workhours/includes/bootstrap.html' with type='css' %}
+    <link rel="stylesheet" href="{% static 'workhours/feather/css/feather.css' %}">
+    {% include 'workhours/includes/theme.html' with type='css' %}
+    <!-- Custom styles -->
+{% endblock %}
+
+{% block header_js %}
+    <!-- Custom scripts -->
+{% endblock %}
+
+{% block header_end %}
+    <!-- Header end -->
+{% endblock %}
+  </head>
+  <body class="d-flex align-items-center bg-auth border-top border-top-2 border-primary">
+{% block body_begin %}
+      <!-- Body begin -->
+{% endblock %}
+    <div class="container-fluid">
+      <div class="row align-items-center justify-content-center">
+        <div class="col-12 col-md-5 col-lg-6 col-xl-4 px-lg-6 my-5">
+{% block content %}
+          <!-- Content -->
+{% endblock %}
+
+{% block feedback %}
+  <!-- Feedback -->
+{% endblock %}
+        </div>
+        <div class="col-12 col-md-7 col-lg-6 col-xl-8 d-none d-lg-block">
+          <div class="bg-cover vh-100 mt-n1 mr-n3 login-background"></div>
+        </div>
+      </div>
+    </div>
+
+{% block footer_css %}
+      <!-- Footer CSS -->
+{% endblock %}
+
+{% block footer_js %}
+      <!-- Footer JS -->
+{% endblock %}
+{% block footer_end %}
+      <!-- Footer end -->
+{% endblock %}
+
+{% block body_end %}
+      <!-- Body end -->
+{% endblock %}
+  </body>
+</html>

@@ -1,0 +1,91 @@
+{% extends 'workhours/reports/base.html' %}
+{% load static %}
+{% load i18n %}
+{% load add_days %}
+{% load get_dictionary_value %}
+
+{% block header_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'workhours/css/report-teams.css' %}">
+{% endblock %}
+
+{% block results %}
+    {% for team_data in results %}
+        <div class="card">
+            <h2 class="card-header">
+          <span>
+            <a class="card-link" data-toggle="collapse" href="#collapse-team-{{ team_data.0 }}" aria-expanded="true">
+              {{ team_data.1 }}
+            </a>
+          </span>
+            </h2>
+            <div id="collapse-team-{{ team_data.0 }}" class="collapse show">
+                <div class="card-body">
+                    <table class="report">
+                        <thead>
+                        <tr>
+                            <td class="employee" rowspan="2">{% translate 'Имя' context 'Shift' %}</td>
+                            <td class="type" rowspan="2">{% translate 'Тип' context 'Reports' %}</td>
+                            {% for day in days %}
+                                <td class="date">{{ day | date:'d' }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            {% for day in days %}
+                                <td class="date">{{ day | date:'D' }}</td>
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for employee_id, shifts in team_data.2.items %}
+                            {# Present #}
+                            <tr>
+                                <td class="employee separator"
+                                    rowspan="4">{{ employees | get_dictionary_value:employee_id }}</td>
+                                <td class="type separator">{% translate 'Присутствует' context 'Shift' %}</td>
+                                {% for shift in shifts %}
+                                    <td class="date separator">{% if shift.is_present %}X{% endif %}</td>
+                                {% endfor %}
+                            </tr>
+                            {# Holiday #}
+                            <tr>
+                                <td class="type">{% translate 'Это праздник' context 'Shift' %}</td>
+                                {% for shift in shifts %}
+                                    <td class="date">{% if shift.is_holiday %}X{% endif %}</td>
+                                {% endfor %}
+                            </tr>
+                            {# Absent #}
+                            <tr>
+                                <td class="type">{% translate 'Отсутствует' context 'Reports' %}</td>
+                                {% for shift in shifts %}
+                                    <td class="date">{% if not shift.is_present and not shift.is_holiday %}
+                                        X{% endif %}</td>
+                                {% endfor %}
+                            </tr>
+                            {# Permit hours #}
+                            <tr>
+                                <td class="type">{% translate 'Разрешенные часы' context 'Shift' %}</td>
+                                {% for shift in shifts %}
+                                    <td class="date">
+                                        {% if shift.permit_hours > 0 %}{{ shift.permit_hours }}{% endif %}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% for date, note in team_data.3.items %}
+                        {% if forloop.first %}
+                            <h2>{% translate 'Записи' context 'Week' %}:</h2>
+                            <ul>
+                        {% endif %}
+                    <li><strong>{{ date | date:date_format_short }} -
+                        {{ date | add_days:6 | date:date_format_short }}</strong>: {{ note }}</li>
+                    {% if forloop.last %}
+                        </ul>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

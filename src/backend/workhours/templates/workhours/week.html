@@ -1,0 +1,400 @@
+{% extends 'workhours/base.html' %}
+{% load static %}
+{% load i18n %}
+{% load assign %}
+{% load get_dictionary_value %}
+{% load get_queryset_row %}
+{% load split_extra_values %}
+
+{% block body_header1_pre_title %}
+    <!-- Pre title -->
+    <a href="{% url 'workhours.team' pk=object.team_id %}"><span class="fe fe-chevron-left"></span></a>
+{% endblock %}
+
+{% block content %}
+    {% if not object.is_closed %}
+        <!-- Modal dialog -->
+        <div class="modal fade" id="modal-dialog" tabindex="-1" role="dialog" aria-hidden="true" data-keyboard="false"
+             data-backdrop="static">
+            <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-body text-center p-5">
+                        <div class="spinner-border text-secondary mb-4" role="status" style="width:94px;height:94px;">
+                            <span class="sr-only">{% translate 'Загрузка...' context 'Week' %}</span>
+                        </div>
+                        <h4 id="modal-result" class="mt-1 mb-4"></h4>
+                        <h4 id="modal-step-title" class="mt-1 mb-4"></h4>
+                        <div class="progress progress-sm">
+                            <div id="modal-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated"
+                                 role="progressbar"
+                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                 style="width: 0"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <!-- Confirmation dialog -->
+    <div class="modal fade" id="confirmation-dialog" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"
+                        id="confirmation-dialog-label">{% translate 'Подтверждаете?' context 'Week' %}</h4>
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="{% translate 'Закрывать' context 'Week' %}">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmation-dialog-text">
+                        {% if object.is_closed %}
+                            {% translate 'Вы уверены, что хотите возобновить закрытую неделю?' context 'Week' %}
+                        {% else %}
+                            {% translate 'Вы уверены, что хотите сохранить данные и закрыть неделю?' context 'Week' %}
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger" id="confirmation-dialog-yes">
+                        {% if object.is_closed %}
+                            {% translate 'Возобновите неделю' context 'Week' %}
+                        {% else %}
+                            {% translate 'Закрываем неделю' context 'Week' %}
+                        {% endif %}
+                    </button>
+                    <button type="button" class="btn btn-primary" id="confirmation-dialog-no" data-dismiss="modal">
+                        {% translate 'Отменить' context 'Week' %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Week details -->
+    <div class="card">
+        <h2 class="card-header">
+          <span>
+            <a class="card-link" data-toggle="collapse" href="#collapse-week" aria-expanded="true">
+                {% translate 'Подробности недели' context 'Week' %}
+            </a>
+          </span>
+            {% if not object.is_closed %}
+                <input class="btn btn-danger" type="button"
+                       value="{% translate 'Сохраните все данные и закройте неделю' context 'Week' %}"
+                       id="week-save" data-toggle="modal" data-target="#confirmation-dialog">
+            {% elif perms.workhours.can_reopen_weeks %}
+                <input class="btn btn-danger" type="button" value="{% translate 'Возобновите неделю' context 'Week' %}"
+                       id="week-open" data-toggle="modal" data-target="#confirmation-dialog">
+            {% endif %}
+        </h2>
+        <div id="collapse-week" class="collapse show">
+            <div class="card-body">
+                <div class="row card-row">
+                    <div class="col-sm-1">{% translate 'Статус' context 'Week' %}</div>
+                    <div class="col-sm-9">
+                        {% if object.is_closed %}
+                            <span class="fe fe-lock"></span>
+                        {% else %}
+                            <span class="fe fe-check-circle"></span>
+                        {% endif %}
+                        {{ week_status }}
+                    </div>
+                </div>
+                <div class="row card-row">
+                    <div class="col-sm-1">
+                        <label for="notes">{% translate 'Записи' context 'Week' %}</label>
+                    </div>
+                    {% if not object.is_closed %}
+                        <div class="col-sm">
+                            <input type="text" id="notes" name="notes" value="{{ object.notes }}" class="form-control">
+                        </div>
+                    {% else %}
+                        <div class="col-sm-9">{{ object.notes }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% for day in days %}
+        <!-- Accordion for day {{ day.0 }} -->
+        <div class="card">
+            <h2 class="card-header">
+          <span>
+            <a class="card-link" data-toggle="collapse" href="#collapse-{{ day.0 }}" aria-expanded="true">
+              {{ day.1 | date:date_format_full }}
+            </a>
+          </span>
+                {% if not object.is_closed %}
+                    <input class="btn btn-primary save-daily" type="button"
+                           value="{% translate 'Сохраняйте ежедневные данные' context 'Week' %}"
+                           id="save-{{ shift.pk }}" data-shifts="{{ day.3 }}" data-toggle="modal"
+                           data-target="#modal-dialog">
+                {% endif %}
+            </h2>
+            <div id="collapse-{{ day.0 }}" class="collapse show">
+                <div class="card-body">
+                    <div class="row card-row card-row-header">
+                        <div class="col-sm-3">{% translate 'Имя' context 'Shift' %}</div>
+                        <div class="col-sm-2">{% translate 'Присутствует' context 'Shift' %}</div>
+                        <div class="col-sm-2">{% translate 'Это праздник' context 'Shift' %}</div>
+                        <div class="col-sm-2">{% translate 'Разрешенные часы' context 'Shift' %}</div>
+                        {% if extras %}
+                            <div class="col-sm-2">{% translate 'Дополнительные услуги' context 'Shift' %}</div>
+                        {% endif %}
+                    </div>
+                    {% for shift in day.2 %}
+                        <div class="row card-row {% if forloop.counter|divisibleby:2 %}card-row-alternate{% endif %}">
+                            <div class="col-sm-3 shift-employee-name" id="employee-{{ shift.pk }}"
+                                 data-date="{{ day.1 | date:date_format_full }}">
+                                {% if user.first_last %}
+                                    {{ shift.employee.first_last }}
+                                {% else %}
+                                    {{ shift.employee.last_first }}
+                                {% endif %}
+                            </div>
+                            <div class="col-sm-2">
+                                <label>
+                                    <input class="zoom-x15" type="checkbox"
+                                            {% if shift.is_present %} checked{% endif %}
+                                            {% if object.is_closed %} disabled{% endif %}
+                                           id="present-{{ shift.pk }}">
+                                    &nbsp;&nbsp;{% translate 'Присутствует' context 'Shift' %}
+                                </label>
+                            </div>
+                            <div class="col-sm-2">
+                                <label>
+                                    <input class="zoom-x15" type="checkbox"
+                                            {% if shift.is_holiday %} checked{% endif %}
+                                            {% if object.is_closed %} disabled{% endif %}
+                                           id="holiday-{{ shift.pk }}">
+                                    &nbsp;&nbsp;{% translate 'Это праздник' context 'Shift' %}
+                                </label>
+                            </div>
+                            <div class="col-sm-2">
+                                <input class="zoom-x12" type="number" min="0" max="8" size="4"
+                                       value="{{ shift.permit_hours }}"
+                                        {% if object.is_closed %} disabled{% endif %}
+                                       id="permit-{{ shift.pk }}">
+                            </div>
+                            {% if extras %}
+                                {% with shifts_extras_values|get_dictionary_value:shift.pk as shift_extras %}
+                                    <div class="col-sm-3">
+                                        {% for extra in extras %}
+                                            {% with shift_extras|get_dictionary_value:extra.name as shift_extra_value %}
+                                                {% if shift_extra_value is None %}
+                                                    {% assign '' as shift_extra_value %}
+                                                {% endif %}
+                                                <div>
+                                                {# Text #}
+                                                {% if extra.type == 0 %}
+                                                    <label for="extra-{{ shift.pk }}-{{ extra.pk }}">{{ extra.description }}</label>
+                                                    <input class="form-control" type="text"
+                                                            {% if object.is_closed %} disabled{% endif %}
+                                                           name="extra-{{ shift.pk }}-{{ extra.pk }}"
+                                                           id="extra-{{ shift.pk }}-{{ extra.pk }}"
+                                                           minlength="{{ extra.minimum }}" {% if extra.maximum > 0 %}
+                                                           maxlength="{{ extra.maximum }}"{% endif %}
+                                                           placeholder="{{ extra.values }}"
+                                                           value="{{ shift_extra_value }}">
+                                                    {# Number #}
+                                                {% elif extra.type == 1 %}
+                                                    <label for="extra-{{ shift.pk }}-{{ extra.pk }}">{{ extra.description }}</label>
+                                                    <input class="form-control" type="number"
+                                                            {% if object.is_closed %} disabled{% endif %}
+                                                           name="extra-{{ shift.pk }}-{{ extra.pk }}"
+                                                           id="extra-{{ shift.pk }}-{{ extra.pk }}"
+                                                           min="{{ extra.minimum }}" max="{{ extra.maximum }}"
+                                                           value="{{ shift_extra_value }}">
+                                                    {# Checkbox on the left #}
+                                                {% elif extra.type == 2 %}
+                                                    <div class="mt-3 mb-3">
+                                                        <input class="zoom-x15" type="checkbox"
+                                                                {% if object.is_closed %} disabled{% endif %}
+                                                               name="extra-{{ shift.pk }}-{{ extra.pk }}"
+                                                               id="extra-{{ shift.pk }}-{{ extra.pk }}"
+                                                                {% if shift_extra_value == '1' %} checked{% endif %}>
+                                                        &nbsp;
+                                                        <label for="extra-{{ shift.pk }}-{{ extra.pk }}">{{ extra.description }}</label>
+                                                    </div>
+                                                    {# Checkbox on the right #}
+                                                {% elif extra.type == 3 %}
+                                                    <div class="mt-3 mb-3">
+                                                        <label for="extra-{{ shift.pk }}-{{ extra.pk }}">{{ extra.description }}</label>
+                                                        &nbsp;
+                                                        <input class="zoom-x15" type="checkbox"
+                                                                {% if object.is_closed %} disabled{% endif %}
+                                                               name="extra-{{ shift.pk }}-{{ extra.pk }}"
+                                                               id="extra-{{ shift.pk }}-{{ extra.pk }}"
+                                                                {% if shift_extra_value == '1' %} checked{% endif %}>
+                                                    </div>
+                                                    {# Select #}
+                                                {% elif extra.type == 4 %}
+                                                    <label for="extra-{{ shift.pk }}-{{ extra.pk }}">{{ extra.description }}</label>
+                                                    <select class="form-control"
+                                                            {% if object.is_closed %} disabled{% endif %}
+                                                            name="extra-{{ shift.pk }}-{{ extra.pk }}"
+                                                            id="extra-{{ shift.pk }}-{{ extra.pk }}">
+                                                        {# Split Extra values #}
+                                                        {% with extra.values|split_extra_values as values %}
+                                                            {% for value in values %}
+                                                                <option value="{{ value.0 }}"
+                                                                        {% if shift_extra_value == value.0 %}
+                                                                        selected{% endif %}>{{ value.1 }}</option>
+                                                            {% endfor %}
+                                                        {% endwith %}
+                                                    </select>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endwith %}
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block footer_js %}
+    {{ block.super }}
+    <script>
+        {% if not object.is_closed %}
+            // Save daily results
+            $(".save-daily").click(function () {
+                let data = $(this).data("shifts");
+                show_dialog('{% translate 'Save daily data' context 'Week' %}', '');
+                setTimeout(function () {
+                    update_shifts(data);
+                    setTimeout(hide_dialog, {{ delay_after_save_day }});
+                }, {{ delay_before_save_day }});
+            });
+            // Save weekly results (confirmation done)
+            $("#confirmation-dialog-yes").click(function () {
+                $("#confirmation-dialog").modal('hide');
+                let data = [];
+                $(".save-daily").each(function (index, object) {
+                    data = data.concat($(object).data("shifts"));
+                });
+                show_dialog('{% translate 'Save all data and close the week' context 'Week' %}', '');
+                setTimeout(function () {
+                    update_shifts(data);
+                    update_week();
+                    setTimeout(hide_dialog, {{ delay_after_save_week }});
+                }, {{ delay_before_save_week }});
+            });
+            // Update data using the modal dialog
+            function update_shifts(data) {
+                let step_size_percent = 1 / data.length * 100;
+                let step_width = 0;
+                // Loop over each shift
+                data.every(function (shift_id) {
+                    let employee = $("#employee-" + shift_id).text();
+                    let date = $("#employee-" + shift_id).data("date");
+                    let is_present = $("#present-" + shift_id).prop("checked");
+                    let is_holiday = $("#holiday-" + shift_id).prop("checked");
+                    let permit = $("#permit-" + shift_id).val();
+                    let obj_extra = null;
+                    {% for extra in extras %}
+                        obj_extra = $("#extra-" + shift_id + "-{{ extra.pk }}");
+                        {% if extra.type == 2 or extra.type == 3 %}
+                            let extra_{{ extra.pk }} = obj_extra.prop("checked");
+                        {% else %}
+                            let extra_{{ extra.pk }} = obj_extra.val();
+                        {% endif %}
+                        console.log({{ extra.pk }}, "{{ extra.description }}", extra_{{ extra.pk }});
+                    {% endfor %}
+                    let update_status = false;
+                    console.log(shift_id, employee, date, is_present, is_holiday, permit);
+                    step_width += step_size_percent;
+                    $("#modal-step-title").text(employee);
+                    $("#modal-progress-bar").css("width", step_width + "%");
+                    $("#modal-result").text('{% translate 'Saving data for ' context 'Week' %}' + date);
+                    $.ajax({
+                        method: "POST",
+                        dataType: "json",
+                        url: "{% url 'workhours.shift_update' %}",
+                        data: {
+                            pk: shift_id,
+                            present: is_present,
+                            holiday: is_holiday,
+                            permit: permit,
+                            {% for extra in extras %}
+                                extra_{{ extra.pk }}: extra_{{ extra.pk }},
+                            {% endfor %}
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                        },
+                        async: false,
+                        success: function () {
+                            console.log('success');
+                            update_status = true;
+                        },
+                        error: function () {
+                            console.log('fail');
+                            $("#modal-result").text("{% translate 'Unable to update' context 'Week' %}");
+                        }
+                    });
+                    // Returning true the every() method processes the next iteration
+                    return update_status;
+                });
+            }
+            // Update and close week
+            function update_week() {
+                let notes = $("#notes").val();
+                $.ajax({
+                    method: "POST",
+                    dataType: "json",
+                    url: "{% url 'workhours.week.close' pk=object.pk %}",
+                    data: {
+                        notes: notes,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    async: false,
+                    success: function () {
+                        console.log('success');
+                        location.replace("{% url 'workhours.team' pk=object.team_id %}");
+                    },
+                    error: function () {
+                        console.log('fail');
+                        $("#modal-result").text("{% translate 'Unable to update' context 'Week' %}");
+                    }
+                });
+            }
+        {% endif %}
+        {% if object.is_closed and perms.workhours.can_reopen_weeks %}
+            // Open closed week (confirmation done)
+            $("#confirmation-dialog-yes").click(function () {
+                $("#confirmation-dialog").modal('hide');
+                $.ajax({
+                    method: "GET",
+                    url: "{% url 'workhours.week.open' pk=object.pk %}",
+                    async: false,
+                    success: function () {
+                        console.log('success');
+                        location.replace("{% url 'workhours.week' pk=object.pk %}");
+                    },
+                    error: function () {
+                        console.log('fail');
+                        $("#modal-result").text("{% translate 'Unable to update' context 'Week' %}");
+                    }
+                });
+                setTimeout(hide_dialog, {{ delay_after_save_week }});
+            });
+        {% endif %}
+        // Show the modal dialog
+        function show_dialog(title, title2) {
+            $('#modal-dialog').modal('show');
+            $("#modal-progress-bar").css("width", "0%");
+            $("#modal-result").text(title);
+            $("#modal-step-title").text(title2);
+        }
+
+        // Hide the modal dialog
+        function hide_dialog() {
+            $('#modal-dialog').modal('hide');
+        }
+    </script>
+{% endblock %}}

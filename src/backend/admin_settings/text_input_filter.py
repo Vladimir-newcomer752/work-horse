@@ -1,0 +1,18 @@
+from django.contrib import admin
+
+
+class TextInputFilter(admin.SimpleListFilter):
+    template = 'admin_settings/text_input_filter/form.html'
+
+    def lookups(self, request, model_admin):
+        return ('', ''),
+
+    def choices(self, changelist):
+        # Grab only the "all" option.
+        all_choice = next(super().choices(changelist))
+        all_choice['query_parts'] = (
+            (k, v)
+            for k, v in changelist.get_filters_params().items()
+            if k != self.parameter_name
+        )
+        yield all_choice

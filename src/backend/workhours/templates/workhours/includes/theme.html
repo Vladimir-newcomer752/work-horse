@@ -1,0 +1,7 @@
+{% load static %}
+    <!-- Theme -->
+{% if type == 'css' %}
+    <link rel="stylesheet" href="{% static 'workhours/css/theme.css' %}">
+{% elif type == 'js' %}
+    <script src="{% static 'workhours/js/theme.min.js' %}"></script>
+{% endif %}

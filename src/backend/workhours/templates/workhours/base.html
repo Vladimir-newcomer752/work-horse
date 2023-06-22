@@ -1,0 +1,139 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html>
+<head>
+    {% block header_begin %}
+        <!-- Header begin -->
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+        <meta name="product" content="{{ app_name }} {{ app_version }}">
+        {% include 'workhours/includes/favicons.html' %}
+    {% endblock %}
+
+    {% block header_title %}
+        <title>{{ page_title_1 }}</title>
+    {% endblock %}
+
+    {% block header_css %}
+        {% include 'workhours/includes/bootstrap.html' with type='css' %}
+        <link rel="stylesheet" href="{% static 'workhours/feather/css/feather.css' %}">
+        {% include 'workhours/includes/theme.html' with type='css' %}
+        <!-- Custom styles -->
+    {% endblock %}
+
+    {% block header_js %}
+        <!-- Custom scripts -->
+    {% endblock %}
+
+    {% block header_end %}
+        <!-- Header end -->
+    {% endblock %}
+</head>
+<body>
+{% block body_begin %}
+    <!-- Body begin -->
+    <nav class="navbar navbar-expand-lg navbar-light" id="topnav">
+        <div class="container">
+            <a class="mr-auto mr-lg-5 order-lg-first text-primary text-bold h2 mb-0" style="margin-left: 35px"
+               href="{% url 'workhours.home' %}"><img style="width: 40px" src="{% static 'workhours/img/logo.png' %}" alt=""></a>
+            <div class="navbar-user">
+                <div class="dropdown">
+                    <a href="#" class="avatar avatar-sm dropdown-toggle" role="button" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        <span class="avatar-title rounded-circle"
+                              title="{{ user.get_full_name }}">{{ user.get_initials }}</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a href="{% url 'workhours.auth.logout' %}"
+                           class="dropdown-item">{% translate 'Выход из системы' context 'Auth' %}</a>
+                    </div>
+                </div>
+            </div>
+            <div class="collapse navbar-collapse mr-auto order-lg-first" id="navbar">
+                <ul class="navbar-nav mr-auto">
+                    {% if not site_hide_dashboard %}
+                        <li class="nav-item mr-3">
+                            <a class="nav-link{% if request.resolver_match.url_name == 'workhours.dashboard' %} active{% endif %}"
+                               role="button"
+                               href="{% url 'workhours.dashboard' %}">{% translate 'Важная инфомация' context 'Dashboard' %}</a>
+                        </li>
+                    {% endif %}
+                    {% if perms.workhours.can_access_reports %}
+                        <li class="nav-item mr-3">
+                            <a class="nav-link{% if request.resolver_match.url_name == 'workhours.reports' %} active{% endif %}"
+                               role="button"
+                               href="{% url 'workhours.reports' %}">{% translate 'Отчеты' context 'Reports' %}</a>
+                        </li>
+                    {% endif %}
+                    {% for team in teams %}
+                        <li class="nav-item mr-3">
+                            <a class="nav-link{% if request.resolver_match.url_name == 'workhours.team' and object.pk == team.pk %} active{% endif %}"
+                               role="button"
+                               href="{% url 'workhours.team' pk=team.pk %}">{{ team.name }}</a>
+                        </li>
+                        {% if request.resolver_match.url_name == 'workhours.week' and object.team_id == team.pk %}
+                            <li class="nav-item mr-3">
+                                <a class="nav-link active"
+                                   role="button">{% translate 'Подробности недели' context 'Team' %}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-content">
+    <div class="container mt-3 mb-5">
+    <div class="header">
+        <div class="header-body">
+            {% block body_header1 %}
+                <!-- Header 1 -->
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h1 class="header-title">
+                            {% block body_header1_pre_title %}
+                                <!-- Pre title -->
+                            {% endblock %}
+                            {{ page_title_1 }}
+                        </h1>
+                    </div>
+                </div>
+            {% endblock %}
+            {% block body_header2 %}
+                <!-- Header 2 -->
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <!-- Content -->
+{% endblock %}
+
+{% block feedback %}
+    <!-- Feedback -->
+{% endblock %}
+
+{% block footer_css %}
+    <!-- Footer CSS -->
+{% endblock %}
+
+{% block footer_js %}
+    <!-- Footer JS -->
+    {% include 'workhours/includes/jquery.html' with type='js' %}
+    {% include 'workhours/includes/bootstrap.html' with type='js' %}
+{% endblock %}
+
+{% block footer_end %}
+    </div>
+    </div>
+    <!-- Footer end -->
+{% endblock %}
+
+{% block body_end %}
+    <!-- Body end -->
+{% endblock %}
+</body>
+</html>

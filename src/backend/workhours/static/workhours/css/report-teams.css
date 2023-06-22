@@ -1,0 +1,40 @@
+table.report {
+  border: 2px solid;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+table.report thead tr td {
+  border: 2px solid;
+  font-size: large;
+  font-weight: bold;
+  text-align: center;
+}
+
+table.report tbody tr td {
+  border: 1px solid;
+}
+
+table.report tbody tr td.employee {
+  font-size: large;
+  font-weight: bold;
+  text-align: center;
+  vertical-align: middle;
+  width: 15%;
+}
+
+table.report tbody tr td.type {
+  font-size: large;
+  padding-left: 0.5rem;
+  white-space: nowrap;
+  width: 10%;
+}
+
+table.report thead tr td.date,
+table.report tbody tr td.date {
+  text-align: center;
+}
+
+table.report tbody tr td.separator {
+  border-top: 2px solid;
+}
